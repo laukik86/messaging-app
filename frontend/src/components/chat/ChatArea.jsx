@@ -4,21 +4,32 @@ import ChatHeader from './ChatHeader';
 import MessageList from './MessageList';
 import MessageInput from './MessageInput';
 import { useMessages } from '../hooks/useMessage';
+import socket from "../socket";
 
 const ChatArea = ({ selectedContact, darkMode, updateContacts }) => {
   const { messages, sendMessage, isTyping } = useMessages(selectedContact.id);
 
+  useEffect(() => {
+    socket.on("reciveMessage",(message)=>{
+      if(message.senderId === selectedContact.id || message.senderId==="user"){
+        setMessages(prev=>[...prev,message]);
+      }
+    });
+
+    return()=>socket.off("reciveMessage");
+  },[selectedContact.id]);
+
   const handleSendMessage = (text) => {
-    if (!text.trim()) return;
-    
-    sendMessage(text);
-    
-    // Update last message in contact
-    const updatedContact = {
-      ...selectedContact,
-      lastMessage: text
+    if(!text) return;
+
+    const message={
+      senderId:"user",
+      receiverId:selectedContact.id,
+      text,
+      timestamp: new Date().toLocaleDateString()
     };
-    updateContacts(updatedContact);
+    setMessage(prev=>[...prev,message]);
+    socket.emit("sendMessage",message);
   };
 
   return (
@@ -26,7 +37,7 @@ const ChatArea = ({ selectedContact, darkMode, updateContacts }) => {
       <ChatHeader contact={selectedContact} darkMode={darkMode} />
       <MessageList 
         messages={messages} 
-        isTyping={isTyping} 
+        
         darkMode={darkMode} 
       />
       <MessageInput 

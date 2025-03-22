@@ -1,24 +1,23 @@
-require("dotenv").config()
-const express = require("express")
-const mongoose = require("mongoose")
-const cors=require("cors");
+const http = require("http"); // ✅ Ensure this is imported
+const express = require("express");
+const mongoose = require("mongoose");
+const cors = require("cors");
+const setupSocket = require("./socketHandler"); // ✅ Import `socket.js`
+require("dotenv").config();
+const app = express();
+const server = http.createServer(app); // ✅ Create an HTTP server
 
-const authRoutes = require("./routes/authRoutes");
-const app =express();
 const PORT = process.env.PORT || 5000;
 
+// Middleware
 app.use(express.json());
 app.use(cors());
 
+// MongoDB Connection
 mongoose.connect(process.env.MONGO_URI)
-.then(()=>console.log("MongoDB Connected"))
-.catch((err)=>console.error("MongoDB Connection Error:",err))
-//routes
-app.use("/api/auth", authRoutes);
+  .then(() => console.log("✅ MongoDB Connected"))
+  .catch(err => console.error("MongoDB Connection Error:", err));
 
+setupSocket(server); // ✅ Attach socket.io to HTTP server
 
-app.get("/",(req,res)=>{
-    res.send("Server is running...");
-});
-
-app.listen(PORT,()=> console.log(`server running on port ${PORT}`));
+server.listen(PORT, () => console.log(`🚀 Server running on port ${PORT}`));
