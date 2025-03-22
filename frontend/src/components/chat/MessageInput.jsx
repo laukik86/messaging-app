@@ -1,5 +1,3 @@
-
-// File: src/components/chat/MessageInput.jsx
 import React, { useState } from 'react';
 import { Send, Paperclip } from 'lucide-react';
 
@@ -9,7 +7,7 @@ const MessageInput = ({ onSendMessage, darkMode }) => {
   const handleSubmit = (e) => {
     e.preventDefault();
     if (!message.trim()) return;
-    
+
     onSendMessage(message);
     setMessage('');
   };

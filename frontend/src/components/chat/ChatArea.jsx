@@ -1,49 +1,50 @@
-// File: src/components/chat/ChatArea.jsx
-import React, { useState, useEffect } from 'react';
+import React, { useEffect } from 'react';
 import ChatHeader from './ChatHeader';
 import MessageList from './MessageList';
 import MessageInput from './MessageInput';
 import { useMessages } from '../hooks/useMessage';
 import socket from "../socket";
 
-const ChatArea = ({ selectedContact, darkMode, updateContacts }) => {
+const ChatArea = ({ selectedContact, darkMode }) => {
+  // Custom hook for managing messages
   const { messages, sendMessage, isTyping } = useMessages(selectedContact.id);
-
+  
   useEffect(() => {
-    socket.on("reciveMessage",(message)=>{
-      if(message.senderId === selectedContact.id || message.senderId==="user"){
-        setMessages(prev=>[...prev,message]);
+    const handleMessage = (message) => {
+      // Only add the message if it's from the selected contact
+      if (message.sender === 'contact' && message.contactId === selectedContact.id) {
+        // Pass the entire message object
+        sendMessage(message);
       }
-    });
-
-    return()=>socket.off("reciveMessage");
-  },[selectedContact.id]);
+    };
+  
+    socket.on("receiveMessage", handleMessage);
+    return () => socket.off("receiveMessage", handleMessage);
+  }, [selectedContact.id, sendMessage]);
 
   const handleSendMessage = (text) => {
-    if(!text) return;
-
-    const message={
-      senderId:"user",
-      receiverId:selectedContact.id,
+    if (!text.trim()) return;
+    
+    // No need to create a message object here
+    // Your hook's sendMessage already creates the message object
+    sendMessage(text);
+    
+    // If you need to emit to socket, create a compatible object
+    const socketMessage = {
+      id: Date.now(),
+      sender: 'user',
       text,
-      timestamp: new Date().toLocaleDateString()
+      timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
     };
-    setMessage(prev=>[...prev,message]);
-    socket.emit("sendMessage",message);
+    
+    socket.emit("sendMessage", socketMessage);
   };
 
   return (
     <>
       <ChatHeader contact={selectedContact} darkMode={darkMode} />
-      <MessageList 
-        messages={messages} 
-        
-        darkMode={darkMode} 
-      />
-      <MessageInput 
-        onSendMessage={handleSendMessage} //here comes the input message from messageInput
-        darkMode={darkMode} 
-      />
+      <MessageList messages={messages} isTyping={isTyping} darkMode={darkMode} />
+      <MessageInput onSendMessage={handleSendMessage} darkMode={darkMode} />
     </>
   );
 };

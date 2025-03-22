@@ -1,11 +1,11 @@
-import React from "react";
-
 const MessageBubble = ({ message, darkMode }) => {
-  // Extract sender, text, and timestamp from the message
+  // Change senderId to sender to match the hook's data structure
   const { sender, text, timestamp } = message;
 
-  // Check if the message is from the logged-in user
-  const isUser = sender === "user";
+  // No need to convert timestamp since it's already formatted in your hook
+  const formattedTime = timestamp;
+
+  const isUser = sender === 'user';
 
   return (
     <div className={`flex ${isUser ? "justify-end" : "justify-start"}`}>
@@ -15,7 +15,7 @@ const MessageBubble = ({ message, darkMode }) => {
       >
         <p className="text-sm">{text}</p>
         <p className={`text-xs text-right mt-1 ${isUser ? "text-blue-100" : darkMode ? "text-gray-400" : "text-gray-500"}`}>
-          {timestamp}
+          {formattedTime}
         </p>
       </div>
     </div>
