@@ -3,10 +3,6 @@ A real-time messaging application built with the MERN stack (MongoDB, Express.js
 
 📌 Features
 
-Uploading Vite + React and 3 more pages - Person 1 - Microsoft​ Edge 2025-03-23 22-37-24.mp4…
-
-
-
 ### UI/UX
 - Clean, responsive design with dark mode support
 
